@@ -1,0 +1,1583 @@
+{
+  "openapi" : "3.0.3",
+  "info" : {
+    "title" : "API de Sistema de Biblioteca",
+    "description" : "API REST para gestión de biblioteca",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "description" : "SwaggerHub API Auto Mocking",
+    "url" : "https://virtserver.swaggerhub.com/ricaldone-676/Recuperacion/1.0.0"
+  }, {
+    "url" : "http://localhost:3000/api",
+    "description" : "Servidor de desarrollo"
+  } ],
+  "paths" : {
+    "/auth/register" : {
+      "post" : {
+        "tags" : [ "Autenticación" ],
+        "summary" : "Registrar usuario",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "firstName", "lastName", "email", "password" ],
+                "properties" : {
+                  "firstName" : {
+                    "type" : "string"
+                  },
+                  "lastName" : {
+                    "type" : "string"
+                  },
+                  "email" : {
+                    "type" : "string",
+                    "format" : "email"
+                  },
+                  "password" : {
+                    "type" : "string",
+                    "minLength" : 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Usuario registrado",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Error de validación"
+          }
+        }
+      }
+    },
+    "/auth/login" : {
+      "post" : {
+        "tags" : [ "Autenticación" ],
+        "summary" : "Iniciar sesión",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "email", "password" ],
+                "properties" : {
+                  "email" : {
+                    "type" : "string",
+                    "format" : "email"
+                  },
+                  "password" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Login exitoso",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Credenciales incorrectas"
+          }
+        }
+      }
+    },
+    "/auth/logout" : {
+      "post" : {
+        "tags" : [ "Autenticación" ],
+        "summary" : "Cerrar sesión",
+        "responses" : {
+          "200" : {
+            "description" : "Logout exitoso"
+          }
+        }
+      }
+    },
+    "/auth/forgot-password" : {
+      "post" : {
+        "tags" : [ "Autenticación" ],
+        "summary" : "Recuperar contraseña",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "email" ],
+                "properties" : {
+                  "email" : {
+                    "type" : "string",
+                    "format" : "email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Email enviado"
+          }
+        }
+      }
+    },
+    "/users" : {
+      "get" : {
+        "tags" : [ "Usuarios" ],
+        "summary" : "Listar usuarios",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 10
+          }
+        }, {
+          "name" : "role",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "admin", "employee", "client" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista de usuarios",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "status" : {
+                      "type" : "string"
+                    },
+                    "results" : {
+                      "type" : "integer"
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "users" : {
+                          "type" : "array",
+                          "items" : {
+                            "$ref" : "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}" : {
+      "get" : {
+        "tags" : [ "Usuarios" ],
+        "summary" : "Obtener usuario",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Usuario encontrado",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "status" : {
+                      "type" : "string"
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "user" : {
+                          "$ref" : "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Usuarios" ],
+        "summary" : "Actualizar usuario",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Usuario actualizado"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Usuarios" ],
+        "summary" : "Eliminar usuario",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Usuario eliminado"
+          }
+        }
+      }
+    },
+    "/books" : {
+      "get" : {
+        "tags" : [ "Libros" ],
+        "summary" : "Listar libros",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 10
+          }
+        }, {
+          "name" : "category",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "author",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "available",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "search",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista de libros",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "status" : {
+                      "type" : "string"
+                    },
+                    "results" : {
+                      "type" : "integer"
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "books" : {
+                          "type" : "array",
+                          "items" : {
+                            "$ref" : "#/components/schemas/Book"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Libros" ],
+        "summary" : "Crear libro",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookCreate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Libro creado"
+          }
+        }
+      }
+    },
+    "/books/{id}" : {
+      "get" : {
+        "tags" : [ "Libros" ],
+        "summary" : "Obtener libro",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Libro encontrado",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "status" : {
+                      "type" : "string"
+                    },
+                    "data" : {
+                      "type" : "object",
+                      "properties" : {
+                        "book" : {
+                          "$ref" : "#/components/schemas/Book"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Libros" ],
+        "summary" : "Actualizar libro",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Libro actualizado"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Libros" ],
+        "summary" : "Eliminar libro",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Libro eliminado"
+          }
+        }
+      }
+    },
+    "/authors" : {
+      "get" : {
+        "tags" : [ "Autores" ],
+        "summary" : "Listar autores",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 10
+          }
+        }, {
+          "name" : "search",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista de autores"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Autores" ],
+        "summary" : "Crear autor",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthorCreate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Autor creado"
+          }
+        }
+      }
+    },
+    "/authors/{id}" : {
+      "get" : {
+        "tags" : [ "Autores" ],
+        "summary" : "Obtener autor",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Autor encontrado"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Autores" ],
+        "summary" : "Actualizar autor",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthorUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Autor actualizado"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Autores" ],
+        "summary" : "Eliminar autor",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Autor eliminado"
+          }
+        }
+      }
+    },
+    "/categories" : {
+      "get" : {
+        "tags" : [ "Categorías" ],
+        "summary" : "Listar categorías",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista de categorías"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Categorías" ],
+        "summary" : "Crear categoría",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CategoryCreate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Categoría creada"
+          }
+        }
+      }
+    },
+    "/categories/{id}" : {
+      "get" : {
+        "tags" : [ "Categorías" ],
+        "summary" : "Obtener categoría",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Categoría encontrada"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Categorías" ],
+        "summary" : "Actualizar categoría",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CategoryUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Categoría actualizada"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Categorías" ],
+        "summary" : "Eliminar categoría",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Categoría eliminada"
+          }
+        }
+      }
+    },
+    "/clients" : {
+      "get" : {
+        "tags" : [ "Clientes" ],
+        "summary" : "Listar clientes",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista de clientes"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Clientes" ],
+        "summary" : "Crear cliente",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ClientCreate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Cliente creado"
+          }
+        }
+      }
+    },
+    "/clients/{id}" : {
+      "get" : {
+        "tags" : [ "Clientes" ],
+        "summary" : "Obtener cliente",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Cliente encontrado"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Clientes" ],
+        "summary" : "Actualizar cliente",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ClientUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Cliente actualizado"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Clientes" ],
+        "summary" : "Eliminar cliente",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Cliente eliminado"
+          }
+        }
+      }
+    },
+    "/loans" : {
+      "get" : {
+        "tags" : [ "Préstamos" ],
+        "summary" : "Listar préstamos",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 10
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "active", "returned", "overdue" ]
+          }
+        }, {
+          "name" : "client",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "book",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista de préstamos"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Préstamos" ],
+        "summary" : "Crear préstamo",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoanCreate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Préstamo creado"
+          }
+        }
+      }
+    },
+    "/loans/{id}" : {
+      "get" : {
+        "tags" : [ "Préstamos" ],
+        "summary" : "Obtener préstamo",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Préstamo encontrado"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Préstamos" ],
+        "summary" : "Actualizar préstamo",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoanUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Préstamo actualizado"
+          }
+        }
+      }
+    },
+    "/loans/{id}/return" : {
+      "patch" : {
+        "tags" : [ "Préstamos" ],
+        "summary" : "Devolver libro",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Libro devuelto"
+          }
+        }
+      }
+    },
+    "/reviews" : {
+      "get" : {
+        "tags" : [ "Reseñas" ],
+        "summary" : "Listar reseñas",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 1
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "default" : 10
+          }
+        }, {
+          "name" : "book",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "client",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "rating",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "minimum" : 1,
+            "maximum" : 5
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista de reseñas"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Reseñas" ],
+        "summary" : "Crear reseña",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReviewCreate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Reseña creada"
+          }
+        }
+      }
+    },
+    "/reviews/{id}" : {
+      "get" : {
+        "tags" : [ "Reseñas" ],
+        "summary" : "Obtener reseña",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Reseña encontrada"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Reseñas" ],
+        "summary" : "Actualizar reseña",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReviewUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Reseña actualizada"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Reseñas" ],
+        "summary" : "Eliminar reseña",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Reseña eliminada"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
+      }
+    },
+    "schemas" : {
+      "AuthResponse" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "example" : "success"
+          },
+          "token" : {
+            "type" : "string"
+          },
+          "data" : {
+            "type" : "object"
+          }
+        }
+      },
+      "User" : {
+        "type" : "object",
+        "properties" : {
+          "_id" : {
+            "type" : "string"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "admin", "employee", "client" ]
+          },
+          "isActive" : {
+            "type" : "boolean"
+          },
+          "phoneNumber" : {
+            "type" : "string"
+          },
+          "address" : {
+            "type" : "string"
+          },
+          "profileImage" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "UserUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "admin", "employee", "client" ]
+          },
+          "phoneNumber" : {
+            "type" : "string"
+          },
+          "address" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Book" : {
+        "type" : "object",
+        "properties" : {
+          "_id" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "summary" : {
+            "type" : "string"
+          },
+          "isbn" : {
+            "type" : "string"
+          },
+          "publishedDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "copiesAvailable" : {
+            "type" : "integer"
+          },
+          "coverUrl" : {
+            "type" : "string"
+          },
+          "tags" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "idAuthors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "idCategories" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "BookCreate" : {
+        "type" : "object",
+        "required" : [ "title", "summary", "isbn", "idAuthors", "idCategories", "copiesAvailable" ],
+        "properties" : {
+          "title" : {
+            "type" : "string"
+          },
+          "summary" : {
+            "type" : "string"
+          },
+          "isbn" : {
+            "type" : "string"
+          },
+          "publishedDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "copiesAvailable" : {
+            "type" : "integer",
+            "minimum" : 0
+          },
+          "tags" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "idAuthors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "idCategories" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "BookUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "title" : {
+            "type" : "string"
+          },
+          "summary" : {
+            "type" : "string"
+          },
+          "isbn" : {
+            "type" : "string"
+          },
+          "publishedDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "copiesAvailable" : {
+            "type" : "integer",
+            "minimum" : 0
+          },
+          "tags" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "idAuthors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "idCategories" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Author" : {
+        "type" : "object",
+        "properties" : {
+          "_id" : {
+            "type" : "string"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "bio" : {
+            "type" : "string"
+          },
+          "birthDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "nationality" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "AuthorCreate" : {
+        "type" : "object",
+        "required" : [ "firstName", "lastName" ],
+        "properties" : {
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "bio" : {
+            "type" : "string"
+          },
+          "birthDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "nationality" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AuthorUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "bio" : {
+            "type" : "string"
+          },
+          "birthDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "nationality" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Category" : {
+        "type" : "object",
+        "properties" : {
+          "_id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "CategoryCreate" : {
+        "type" : "object",
+        "required" : [ "name" ],
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CategoryUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Client" : {
+        "type" : "object",
+        "properties" : {
+          "_id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "phone" : {
+            "type" : "string"
+          },
+          "address" : {
+            "type" : "string"
+          },
+          "membershipDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "isActive" : {
+            "type" : "boolean"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ClientCreate" : {
+        "type" : "object",
+        "required" : [ "name", "email" ],
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "phone" : {
+            "type" : "string"
+          },
+          "address" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string",
+            "minLength" : 6
+          }
+        }
+      },
+      "ClientUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "phone" : {
+            "type" : "string"
+          },
+          "address" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Loan" : {
+        "type" : "object",
+        "properties" : {
+          "_id" : {
+            "type" : "string"
+          },
+          "idClient" : {
+            "type" : "string"
+          },
+          "idBook" : {
+            "type" : "string"
+          },
+          "loanDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "dueDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "returnDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "active", "returned", "overdue" ]
+          },
+          "notes" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "LoanCreate" : {
+        "type" : "object",
+        "required" : [ "idClient", "idBook", "dueDate" ],
+        "properties" : {
+          "idClient" : {
+            "type" : "string"
+          },
+          "idBook" : {
+            "type" : "string"
+          },
+          "dueDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "notes" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LoanUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "dueDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "notes" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Review" : {
+        "type" : "object",
+        "properties" : {
+          "_id" : {
+            "type" : "string"
+          },
+          "idClient" : {
+            "type" : "string"
+          },
+          "idBook" : {
+            "type" : "string"
+          },
+          "rating" : {
+            "type" : "integer",
+            "minimum" : 1,
+            "maximum" : 5
+          },
+          "comment" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ReviewCreate" : {
+        "type" : "object",
+        "required" : [ "idClient", "idBook", "rating" ],
+        "properties" : {
+          "idClient" : {
+            "type" : "string"
+          },
+          "idBook" : {
+            "type" : "string"
+          },
+          "rating" : {
+            "type" : "integer",
+            "minimum" : 1,
+            "maximum" : 5
+          },
+          "comment" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ReviewUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "rating" : {
+            "type" : "integer",
+            "minimum" : 1,
+            "maximum" : 5
+          },
+          "comment" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}

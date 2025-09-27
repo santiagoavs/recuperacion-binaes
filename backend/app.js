@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+import path from "path";
 import bookRoutes from "./src/routes/books.js";
 import userRoutes from "./src/routes/users.js";
 import authorRoutes from "./src/routes/authors.js";
@@ -23,6 +25,11 @@ app.use(cors());
 app.use(limiter);
 app.use(express.json());
 
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.resolve("./documentation.json"), "utf-8")
+);
+
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/api/books", bookRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/authors", authorRoutes);
